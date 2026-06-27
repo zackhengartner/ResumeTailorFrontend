@@ -182,7 +182,7 @@ function App() {
     formData.append("resume", file);
     formData.append("jobDescription", jobDescription);
     setLoading(true);
-    const res = await fetch("http://127.0.0.1:8000/analyze-resume", {
+    const res = await fetch(VITE_API_URL, {
       method: "POST",
       body: formData,
     });
