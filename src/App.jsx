@@ -182,7 +182,7 @@ function App() {
     formData.append("resume", file);
     formData.append("jobDescription", jobDescription);
     setLoading(true);
-    const res = await fetch(VITE_API_URL, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/analyze-resume`, {
       method: "POST",
       body: formData,
     });
