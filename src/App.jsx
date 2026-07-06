@@ -17,40 +17,15 @@ function BulletTextarea({ initialValue, onCommit, onRemove }) {
   useEffect(() => { setValue(initialValue); }, [initialValue]);
 
   return (
-    <div style={{ display: "flex", gap: "6px", marginBottom: "6px" }}>
+    <div className="bullet-row">
       <textarea
         rows={2}
+        className="textarea"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={() => onCommit(value)}
-        style={{
-          width: "100%",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          border: "1px solid #d1d5db",
-          fontSize: "13px",
-          boxSizing: "border-box",
-          color: "#111827",
-          marginBottom: 0,
-          flex: 1,
-          resize: "vertical",
-          background: "#fff",
-          fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-        }}
       />
-      <button
-        onClick={onRemove}
-        style={{
-          background: "none",
-          border: "1px solid #e5e7eb",
-          borderRadius: "6px",
-          cursor: "pointer",
-          color: "#9ca3af",
-          padding: "4px 8px",
-          alignSelf: "flex-start",
-          fontSize: "12px",
-        }}
-      >✕</button>
+      <button className="btn-x" onClick={onRemove} title="Remove bullet">✕</button>
     </div>
   );
 }
@@ -61,9 +36,7 @@ function BulletTextarea({ initialValue, onCommit, onRemove }) {
 function BulletEditor({ bullets, onUpdate, onAdd, onRemove }) {
   return (
     <>
-      <div style={{ fontSize: "12px", fontWeight: 600, color: "#6b7280", marginBottom: "4px" }}>
-        Bullets
-      </div>
+      <div className="field-label">Bullets</div>
       {(bullets || []).map((b, bi) => (
         <BulletTextarea
           key={bi}
@@ -72,17 +45,7 @@ function BulletEditor({ bullets, onUpdate, onAdd, onRemove }) {
           onRemove={() => onRemove(bi)}
         />
       ))}
-      <button
-        onClick={onAdd}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#2563eb",
-          fontSize: "12px",
-          cursor: "pointer",
-          padding: "4px 0",
-        }}
-      >+ Add bullet</button>
+      <button className="btn-link" onClick={onAdd}>+ Add bullet</button>
     </>
   );
 }
@@ -345,477 +308,339 @@ function App() {
       .save();
   };
 
-  // ── Shared styles ───────────────────────────────────────────────────────────
-  const card = {
-    background: "#fff",
-    borderRadius: "18px",
-    padding: "24px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-    overflow: "auto",
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #d1d5db",
-    boxSizing: "border-box",
-    fontSize: "14px",
-    marginBottom: "16px",
-  };
-
-  const fieldStyle = {
-    width: "100%",
-    padding: "8px 12px",
-    borderRadius: "8px",
-    border: "1px solid #d1d5db",
-    fontSize: "13px",
-    boxSizing: "border-box",
-    color: "#111827",
-    marginBottom: "8px",
-    background: "#fff",
-  };
-
-  const sectionLabel = {
-    fontSize: "11px",
-    fontWeight: 600,
-    letterSpacing: "1px",
-    textTransform: "uppercase",
-    color: "#9ca3af",
-    borderBottom: "1px solid #f3f4f6",
-    paddingBottom: "6px",
-    marginBottom: "12px",
-    marginTop: "24px",
-  };
-
-  const fieldLabel = {
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "#6b7280",
-    marginBottom: "4px",
-  };
-
-  const entryCard = {
-    background: "#f9fafb",
-    borderRadius: "10px",
-    border: "1px solid #e5e7eb",
-    padding: "12px 14px",
-    marginBottom: "12px",
-  };
-
-  const entryTitle = {
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "#374151",
-    marginBottom: "10px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  };
-
-  const removeBtnStyle = {
-    background: "none",
-    border: "1px solid #fca5a5",
-    borderRadius: "6px",
-    cursor: "pointer",
-    color: "#ef4444",
-    fontSize: "11px",
-    padding: "2px 8px",
-    fontWeight: 600,
-  };
-
-  const addEntryBtn = {
-    width: "100%",
-    padding: "8px",
-    borderRadius: "8px",
-    border: "1px dashed #d1d5db",
-    background: "none",
-    color: "#6b7280",
-    fontSize: "13px",
-    cursor: "pointer",
-    marginBottom: "8px",
-  };
-
-
-  const chip = (type) => ({
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "8px 14px",
-    margin: "5px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    fontSize: "13px",
-    fontWeight: "600",
-    userSelect: "none",
-    background: type === "good" ? "rgba(16,185,129,.12)" : "rgba(239,68,68,.12)",
-    color: type === "good" ? "#059669" : "#dc2626",
-  });
-
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "320px 350px 1fr",
-      gap: "20px",
-      height: "100vh",
-      padding: "20px",
-      background: "#f5f7fb",
-      boxSizing: "border-box",
-      fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-    }}>
+    <div className="app">
 
       {/* ── LEFT: Upload + settings ─────────────────────────────────────────── */}
-      <div style={card}>
-        <h1 style={{ marginTop: 0, marginBottom: "24px", fontSize: "28px", color: "#111827" }}>
-          Resume Analyzer
-        </h1>
+      <div className="panel">
+        <div className="panel-head">
+          <div className="brand">
+            <div className="brand-mark">RT</div>
+            <h1 className="brand-name">Resume<em>Tailor</em></h1>
+          </div>
+        </div>
+        <div className="panel-body">
+          <div className="form-row">
+            <label className="field-label">Resume PDF</label>
+            <label className={`dropzone${file ? " has-file" : ""}`}>
+              <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} />
+              <div className="dropzone-icon">{file ? "📄" : "⬆️"}</div>
+              <div className="dropzone-text">
+                <div className="dropzone-title">
+                  {file ? file.name : "Upload your resume"}
+                </div>
+                <div className="dropzone-hint">
+                  {file ? "Click to replace" : "PDF, one page works best"}
+                </div>
+              </div>
+            </label>
+          </div>
 
-        <label style={fieldLabel}>Resume PDF</label>
-        <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} style={inputStyle} />
+          <div className="form-row">
+            <label className="field-label">Template</label>
+            <select className="select" value={layout} onChange={(e) => setLayout(e.target.value)}>
+              <option value="google">Google SWE Style</option>
+              <option value="harvard">Harvard Academic</option>
+              <option value="ats">ATS Clean</option>
+            </select>
+          </div>
 
-        <label style={fieldLabel}>Template</label>
-        <select value={layout} onChange={(e) => setLayout(e.target.value)} style={inputStyle}>
-          <option value="google">Google SWE Style</option>
-          <option value="harvard">Harvard Academic</option>
-          <option value="ats">ATS Clean</option>
-        </select>
+          <div className="form-row">
+            <label className="field-label">Job Description</label>
+            <textarea
+              rows={12}
+              className="textarea"
+              placeholder="Paste the job posting here…"
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+            />
+          </div>
 
-        <label style={fieldLabel}>Job Description</label>
-        <textarea
-          rows={12}
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
+          <button
+            className="btn btn-primary"
+            onClick={analyzeResume}
+            disabled={loading || !file || !jobDescription}
+          >
+            {loading && <span className="spinner" />}
+            {loading ? "Analyzing…" : "Analyze Resume"}
+          </button>
 
-        <button
-          onClick={analyzeResume}
-          style={{
-            width: "100%", padding: "14px", border: "none", borderRadius: "12px",
-            background: "#2563eb", color: "#fff", fontWeight: 600, fontSize: "15px", cursor: "pointer",
-          }}
-        >
-          {loading ? "Analyzing…" : "Analyze Resume"}
-        </button>
-
-        <div style={{
-          marginTop: "24px", background: "#eff6ff", borderRadius: "14px",
-          padding: "20px", textAlign: "center",
-        }}>
-          <div style={{ fontSize: "48px", fontWeight: "700", color: "#2563eb" }}>{matchScore}%</div>
-          <div style={{ color: "#64748b", fontSize: "14px" }}>Match Score</div>
+          {resumeData && (
+            <div className="score-card">
+              <div className="score-top">
+                <div className="score-value">{matchScore}%</div>
+                <div className="score-label">Match Score</div>
+              </div>
+              <div className="score-track">
+                <div className="score-fill" style={{ width: `${matchScore}%` }} />
+              </div>
+              <div className="score-meta">
+                <span>{strengths.length} matched</span>
+                <span>{missingSkills.length} missing</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* ── CENTER: All editors ─────────────────────────────────────────────── */}
-      <div style={card}>
-        <h2 style={{ marginTop: 0, color: "#111827" }}>Editor</h2>
+      <div className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Editor</h2>
+        </div>
+        <div className="panel-body">
 
-        {/* BASICS */}
-        <div style={sectionLabel}>Contact info</div>
-        {[["name", "Full name"], ["email", "Email"], ["phone", "Phone"]].map(([f, label]) => (
-          <div key={f}>
-            <div style={fieldLabel}>{label}</div>
-            <input
-              type="text"
-              value={mergedBasics[f] ?? ""}
-              onChange={(e) => updateBasics(f, e.target.value)}
-              style={fieldStyle}
-            />
-          </div>
-        ))}
-        <div style={fieldLabel}>GitHub</div>
-        <input
-          type="text"
-          value={mergedBasics.links?.github ?? ""}
-          onChange={(e) => updateBasicsLink("github", e.target.value)}
-          style={fieldStyle}
-        />
-        <div style={fieldLabel}>Website</div>
-        <input
-          type="text"
-          value={mergedBasics.links?.website ?? ""}
-          onChange={(e) => updateBasicsLink("website", e.target.value)}
-          style={fieldStyle}
-        />
-
-        {/* EDUCATION */}
-        <div style={sectionLabel}>Education</div>
-        {/* AI-sourced entries */}
-        {aiEducation.map((_, i) => {
-          const entry = mergedEducation[i];
-          return (
-            <div key={i} style={entryCard}>
-              <div style={entryTitle}>{entry.school || `School ${i + 1}`}</div>
-              <div style={fieldLabel}>School</div>
-              <input type="text" value={entry.school ?? ""} onChange={(e) => updateEducation(i, "school", e.target.value)} style={fieldStyle} />
-              <div style={fieldLabel}>Degree</div>
-              <input type="text" value={entry.degree ?? ""} onChange={(e) => updateEducation(i, "degree", e.target.value)} style={fieldStyle} />
-              <div style={fieldLabel}>Date range</div>
-              <input type="text" value={entry.date ?? ""} placeholder="e.g. Aug 2021 – May 2025" onChange={(e) => updateEducation(i, "date", e.target.value)} style={fieldStyle} />
-            </div>
-          );
-        })}
-        {/* User-added extra entries */}
-        {extraEducation.map((entry, i) => (
-          <div key={`extra-edu-${i}`} style={entryCard}>
-            <div style={entryTitle}>
-              <span>{entry.school || "New school"}</span>
-              <button style={removeBtnStyle} onClick={() => removeExtraEntry(setExtraEducation, i)}>Remove</button>
-            </div>
-            <div style={fieldLabel}>School</div>
-            <input type="text" value={entry.school} onChange={(e) => updateExtra(setExtraEducation, i, "school", e.target.value)} style={fieldStyle} />
-            <div style={fieldLabel}>Degree</div>
-            <input type="text" value={entry.degree} onChange={(e) => updateExtra(setExtraEducation, i, "degree", e.target.value)} style={fieldStyle} />
-            <div style={fieldLabel}>Date range</div>
-            <input type="text" value={entry.date} placeholder="e.g. Aug 2021 – May 2025" onChange={(e) => updateExtra(setExtraEducation, i, "date", e.target.value)} style={fieldStyle} />
-          </div>
-        ))}
-        <button style={addEntryBtn} onClick={() => setExtraEducation((p) => [...p, blankEducation()])}>
-          + Add education
-        </button>
-
-        {/* EXPERIENCE */}
-        <div style={sectionLabel}>Experience</div>
-        {aiExperience.map((_, i) => {
-          const job = mergedExperience[i];
-          return (
-            <div key={i} style={entryCard}>
-              <div style={entryTitle}>{job.role || `Job ${i + 1}`}{job.company ? ` — ${job.company}` : ""}</div>
-              <div style={fieldLabel}>Job title</div>
-              <input type="text" value={job.role ?? ""} onChange={(e) => updateExpField(i, "role", e.target.value)} style={fieldStyle} />
-              <div style={fieldLabel}>Company</div>
-              <input type="text" value={job.company ?? ""} onChange={(e) => updateExpField(i, "company", e.target.value)} style={fieldStyle} />
-              <BulletEditor
-                bullets={job.bullets}
-                onUpdate={(bi, val) => updateExpBullet(i, bi, val)}
-                onAdd={() => addExpBullet(i)}
-                onRemove={(bi) => removeExpBullet(i, bi)}
-              />
-            </div>
-          );
-        })}
-        {extraExperience.map((job, i) => (
-          <div key={`extra-exp-${i}`} style={entryCard}>
-            <div style={entryTitle}>
-              <span>{job.role || "New role"}{job.company ? ` — ${job.company}` : ""}</span>
-              <button style={removeBtnStyle} onClick={() => removeExtraEntry(setExtraExperience, i)}>Remove</button>
-            </div>
-            <div style={fieldLabel}>Job title</div>
-            <input type="text" value={job.role} onChange={(e) => updateExtra(setExtraExperience, i, "role", e.target.value)} style={fieldStyle} />
-            <div style={fieldLabel}>Company</div>
-            <input type="text" value={job.company} onChange={(e) => updateExtra(setExtraExperience, i, "company", e.target.value)} style={fieldStyle} />
-            <BulletEditor
-              bullets={job.bullets}
-              onUpdate={(bi, val) => updateExtraBullet(setExtraExperience, i, bi, val)}
-              onAdd={() => addExtraBullet(setExtraExperience, i)}
-              onRemove={(bi) => removeExtraBullet(setExtraExperience, i, bi)}
-            />
-          </div>
-        ))}
-        <button style={addEntryBtn} onClick={() => setExtraExperience((p) => [...p, blankExperience()])}>
-          + Add experience
-        </button>
-
-        {/* PROJECTS */}
-        <div style={sectionLabel}>Projects</div>
-        {aiProjects.map((_, i) => {
-          const proj = mergedProjects[i];
-          return (
-            <div key={i} style={entryCard}>
-              <div style={entryTitle}>{proj.name || `Project ${i + 1}`}</div>
-              <div style={fieldLabel}>Project name</div>
-              <input type="text" value={proj.name ?? ""} onChange={(e) => updateProjField(i, "name", e.target.value)} style={fieldStyle} />
-              <div style={fieldLabel}>Tech stack</div>
+          {/* BASICS */}
+          <div className="section-label">Contact info</div>
+          {[["name", "Full name"], ["email", "Email"], ["phone", "Phone"]].map(([f, label]) => (
+            <div key={f} className="form-row">
+              <div className="field-label">{label}</div>
               <input
                 type="text"
-                value={(proj.tech || proj.stack || proj.languages || []).join(", ")}
+                className="input"
+                value={mergedBasics[f] ?? ""}
+                onChange={(e) => updateBasics(f, e.target.value)}
+              />
+            </div>
+          ))}
+          <div className="form-row">
+            <div className="field-label">GitHub</div>
+            <input
+              type="text"
+              className="input"
+              value={mergedBasics.links?.github ?? ""}
+              onChange={(e) => updateBasicsLink("github", e.target.value)}
+            />
+          </div>
+          <div className="form-row">
+            <div className="field-label">Website</div>
+            <input
+              type="text"
+              className="input"
+              value={mergedBasics.links?.website ?? ""}
+              onChange={(e) => updateBasicsLink("website", e.target.value)}
+            />
+          </div>
+
+          {/* EDUCATION */}
+          <div className="section-label">Education</div>
+          {/* AI-sourced entries */}
+          {aiEducation.map((_, i) => {
+            const entry = mergedEducation[i];
+            return (
+              <div key={i} className="entry-card">
+                <div className="entry-title"><span>{entry.school || `School ${i + 1}`}</span></div>
+                <div className="field-label">School</div>
+                <input type="text" className="input" value={entry.school ?? ""} onChange={(e) => updateEducation(i, "school", e.target.value)} />
+                <div className="field-label">Degree</div>
+                <input type="text" className="input" value={entry.degree ?? ""} onChange={(e) => updateEducation(i, "degree", e.target.value)} />
+                <div className="field-label">Date range</div>
+                <input type="text" className="input" value={entry.date ?? ""} placeholder="e.g. Aug 2021 – May 2025" onChange={(e) => updateEducation(i, "date", e.target.value)} />
+              </div>
+            );
+          })}
+          {/* User-added extra entries */}
+          {extraEducation.map((entry, i) => (
+            <div key={`extra-edu-${i}`} className="entry-card">
+              <div className="entry-title">
+                <span>{entry.school || "New school"}</span>
+                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraEducation, i)}>Remove</button>
+              </div>
+              <div className="field-label">School</div>
+              <input type="text" className="input" value={entry.school} onChange={(e) => updateExtra(setExtraEducation, i, "school", e.target.value)} />
+              <div className="field-label">Degree</div>
+              <input type="text" className="input" value={entry.degree} onChange={(e) => updateExtra(setExtraEducation, i, "degree", e.target.value)} />
+              <div className="field-label">Date range</div>
+              <input type="text" className="input" value={entry.date} placeholder="e.g. Aug 2021 – May 2025" onChange={(e) => updateExtra(setExtraEducation, i, "date", e.target.value)} />
+            </div>
+          ))}
+          <button className="btn btn-add-entry" onClick={() => setExtraEducation((p) => [...p, blankEducation()])}>
+            + Add education
+          </button>
+
+          {/* EXPERIENCE */}
+          <div className="section-label">Experience</div>
+          {aiExperience.map((_, i) => {
+            const job = mergedExperience[i];
+            return (
+              <div key={i} className="entry-card">
+                <div className="entry-title">
+                  <span>{job.role || `Job ${i + 1}`}{job.company ? ` — ${job.company}` : ""}</span>
+                </div>
+                <div className="field-label">Job title</div>
+                <input type="text" className="input" value={job.role ?? ""} onChange={(e) => updateExpField(i, "role", e.target.value)} />
+                <div className="field-label">Company</div>
+                <input type="text" className="input" value={job.company ?? ""} onChange={(e) => updateExpField(i, "company", e.target.value)} />
+                <BulletEditor
+                  bullets={job.bullets}
+                  onUpdate={(bi, val) => updateExpBullet(i, bi, val)}
+                  onAdd={() => addExpBullet(i)}
+                  onRemove={(bi) => removeExpBullet(i, bi)}
+                />
+              </div>
+            );
+          })}
+          {extraExperience.map((job, i) => (
+            <div key={`extra-exp-${i}`} className="entry-card">
+              <div className="entry-title">
+                <span>{job.role || "New role"}{job.company ? ` — ${job.company}` : ""}</span>
+                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraExperience, i)}>Remove</button>
+              </div>
+              <div className="field-label">Job title</div>
+              <input type="text" className="input" value={job.role} onChange={(e) => updateExtra(setExtraExperience, i, "role", e.target.value)} />
+              <div className="field-label">Company</div>
+              <input type="text" className="input" value={job.company} onChange={(e) => updateExtra(setExtraExperience, i, "company", e.target.value)} />
+              <BulletEditor
+                bullets={job.bullets}
+                onUpdate={(bi, val) => updateExtraBullet(setExtraExperience, i, bi, val)}
+                onAdd={() => addExtraBullet(setExtraExperience, i)}
+                onRemove={(bi) => removeExtraBullet(setExtraExperience, i, bi)}
+              />
+            </div>
+          ))}
+          <button className="btn btn-add-entry" onClick={() => setExtraExperience((p) => [...p, blankExperience()])}>
+            + Add experience
+          </button>
+
+          {/* PROJECTS */}
+          <div className="section-label">Projects</div>
+          {aiProjects.map((_, i) => {
+            const proj = mergedProjects[i];
+            return (
+              <div key={i} className="entry-card">
+                <div className="entry-title"><span>{proj.name || `Project ${i + 1}`}</span></div>
+                <div className="field-label">Project name</div>
+                <input type="text" className="input" value={proj.name ?? ""} onChange={(e) => updateProjField(i, "name", e.target.value)} />
+                <div className="field-label">Tech stack</div>
+                <input
+                  type="text"
+                  className="input"
+                  value={(proj.tech || proj.stack || proj.languages || []).join(", ")}
+                  placeholder="e.g. React, Node.js, PostgreSQL"
+                  onChange={(e) => updateProjField(i, "tech", e.target.value.split(",").map((s) => s.trim()))}
+                />
+                <BulletEditor
+                  bullets={proj.bullets}
+                  onUpdate={(bi, val) => updateProjBullet(i, bi, val)}
+                  onAdd={() => addProjBullet(i)}
+                  onRemove={(bi) => removeProjBullet(i, bi)}
+                />
+              </div>
+            );
+          })}
+          {extraProjects.map((proj, i) => (
+            <div key={`extra-proj-${i}`} className="entry-card">
+              <div className="entry-title">
+                <span>{proj.name || "New project"}</span>
+                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraProjects, i)}>Remove</button>
+              </div>
+              <div className="field-label">Project name</div>
+              <input type="text" className="input" value={proj.name} onChange={(e) => updateExtra(setExtraProjects, i, "name", e.target.value)} />
+              <div className="field-label">Tech stack</div>
+              <input
+                type="text"
+                className="input"
+                value={(proj.tech || []).join(", ")}
                 placeholder="e.g. React, Node.js, PostgreSQL"
-                onChange={(e) => updateProjField(i, "tech", e.target.value.split(",").map((s) => s.trim()))}
-                style={fieldStyle}
+                onChange={(e) => updateExtra(setExtraProjects, i, "tech", e.target.value.split(",").map((s) => s.trim()))}
               />
               <BulletEditor
                 bullets={proj.bullets}
-                onUpdate={(bi, val) => updateProjBullet(i, bi, val)}
-                onAdd={() => addProjBullet(i)}
-                onRemove={(bi) => removeProjBullet(i, bi)}
+                onUpdate={(bi, val) => updateExtraBullet(setExtraProjects, i, bi, val)}
+                onAdd={() => addExtraBullet(setExtraProjects, i)}
+                onRemove={(bi) => removeExtraBullet(setExtraProjects, i, bi)}
               />
             </div>
-          );
-        })}
-        {extraProjects.map((proj, i) => (
-          <div key={`extra-proj-${i}`} style={entryCard}>
-            <div style={entryTitle}>
-              <span>{proj.name || "New project"}</span>
-              <button style={removeBtnStyle} onClick={() => removeExtraEntry(setExtraProjects, i)}>Remove</button>
-            </div>
-            <div style={fieldLabel}>Project name</div>
-            <input type="text" value={proj.name} onChange={(e) => updateExtra(setExtraProjects, i, "name", e.target.value)} style={fieldStyle} />
-            <div style={fieldLabel}>Tech stack</div>
+          ))}
+          <button className="btn btn-add-entry" onClick={() => setExtraProjects((p) => [...p, blankProject()])}>
+            + Add project
+          </button>
+
+          {/* SKILLS */}
+          <div className="section-label">Skills</div>
+          <div className="chip-row">
+            {strengths.map((skill) => (
+              <span key={skill} className="chip chip-good">
+                {skill}
+                <button onClick={() => removeStrength(skill)} title="Remove skill">✕</button>
+              </span>
+            ))}
+          </div>
+          <div className="skill-add-row">
             <input
               type="text"
-              value={(proj.tech || []).join(", ")}
-              placeholder="e.g. React, Node.js, PostgreSQL"
-              onChange={(e) => updateExtra(setExtraProjects, i, "tech", e.target.value.split(",").map((s) => s.trim()))}
-              style={fieldStyle}
+              className="input"
+              placeholder="Add a skill…"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
             />
-            <BulletEditor
-              bullets={proj.bullets}
-              onUpdate={(bi, val) => updateExtraBullet(setExtraProjects, i, bi, val)}
-              onAdd={() => addExtraBullet(setExtraProjects, i)}
-              onRemove={(bi) => removeExtraBullet(setExtraProjects, i, bi)}
-            />
+            <button className="btn btn-ghost" onClick={addSkill}>Add</button>
           </div>
-        ))}
-        <button style={addEntryBtn} onClick={() => setExtraProjects((p) => [...p, blankProject()])}>
-          + Add project
-        </button>
 
-        {/* SKILLS */}
-        <div style={sectionLabel}>Skills</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "7px", marginBottom: "10px" }}>
-          {strengths.map((skill) => (
-            <span
-              key={skill}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: "6px",
-                padding: "5px 10px", borderRadius: "999px",
-                background: "rgba(16,185,129,.12)", color: "#059669",
-                fontSize: "13px", fontWeight: 600,
-              }}
-            >
-              {skill}
-              <button
-                onClick={() => removeStrength(skill)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#059669", fontSize: "14px", lineHeight: 1, padding: 0 }}
-              >✕</button>
-            </span>
-          ))}
+          {/* MISSING SKILLS */}
+          {missingSkills.length > 0 && (
+            <>
+              <div className="section-label">Missing Skills</div>
+              <div className="chip-row">
+                {missingSkills.map((skill) => (
+                  <span key={skill} className="chip chip-bad" onClick={() => addStrength(skill)} title="Click to add as a strength">
+                    + {skill}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-        <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-          <input
-            type="text"
-            placeholder="Add a skill…"
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
-            style={{ ...fieldStyle, marginBottom: 0, flex: 1 }}
-          />
-          <button
-            onClick={addSkill}
-            style={{
-              padding: "8px 14px", borderRadius: "8px", border: "1px solid #2563eb",
-              background: "#eff6ff", color: "#2563eb", fontWeight: 600, fontSize: "13px", cursor: "pointer",
-            }}
-          >Add</button>
-        </div>
-
-        {/* MISSING SKILLS */}
-        {missingSkills.length > 0 && (
-          <>
-            <div style={sectionLabel}>Missing Skills</div>
-            <div>
-              {missingSkills.map((skill) => (
-                <span key={skill} style={chip("bad")} onClick={() => addStrength(skill)}>
-                  + {skill}
-                </span>
-              ))}
-            </div>
-          </>
-        )}
       </div>
 
       {/* ── RIGHT: Live preview ─────────────────────────────────────────────── */}
-      <div style={{ ...card, background: "#eef2f7" }}>
-        <div
-          id="resume"
-          ref={resumeRef}
-          style={{
-            background: "#fff",
-            width: "816px",
-            minHeight: "1056px",
-            margin: "0 auto",
-            borderRadius: "12px",
-            overflow: "visible",
-            boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-          }}
-        >
-          <ResumeRenderer
-            layout={layout}
-            data={{
-              basics: mergedBasics,
-              education: mergedEducation,
-              experience: mergedExperience,
-              projects: mergedProjects,
-              skills: strengths,
-            }}
-          />
-        </div>
-
-        {/* Page overflow indicator line */}
-        {resumeData && (
-          <div style={{
-            width: "816px",
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginTop: "12px",
-          }}>
-            <div style={{ flex: 1, height: "1px", background: isOverOnePage ? "#fca5a5" : "#d1fae5" }} />
-            <span style={{
-              fontSize: "11px",
-              fontWeight: 600,
-              color: isOverOnePage ? "#ef4444" : "#10b981",
-              whiteSpace: "nowrap",
-            }}>
-              {isOverOnePage ? "⚠ Exceeds 1 page" : "✓ Fits 1 page"}
-            </span>
-            <div style={{ flex: 1, height: "1px", background: isOverOnePage ? "#fca5a5" : "#d1fae5" }} />
+      <div className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Preview</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {resumeData && (
+              <span className={`fit-badge ${isOverOnePage ? "over" : "ok"}`}>
+                {isOverOnePage ? "⚠ Exceeds 1 page" : "✓ Fits 1 page"}
+              </span>
+            )}
+            <button
+              className="btn btn-dark"
+              onClick={downloadPDF}
+              title={isOverOnePage ? "Resume exceeds one page — PDF may be clipped" : ""}
+            >
+              Download PDF
+            </button>
           </div>
-        )}
+        </div>
+        <div className="panel-body preview-body">
+          <div id="resume" ref={resumeRef} className="resume-sheet">
+            <ResumeRenderer
+              layout={layout}
+              data={{
+                basics: mergedBasics,
+                education: mergedEducation,
+                experience: mergedExperience,
+                projects: mergedProjects,
+                skills: strengths,
+              }}
+            />
+          </div>
 
-        {/* Overflow warning banner */}
-        {isOverOnePage && (
-          <div style={{
-            marginTop: "12px",
-            padding: "12px 16px",
-            borderRadius: "10px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
-            display: "flex",
-            gap: "10px",
-            alignItems: "flex-start",
-            width: "816px",
-            margin: "12px auto 0",
-            boxSizing: "border-box",
-          }}>
-            <span style={{ fontSize: "18px", lineHeight: 1.2 }}>⚠️</span>
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: 700, color: "#b91c1c", marginBottom: "2px" }}>
-                Resume exceeds one page
-              </div>
-              <div style={{ fontSize: "12px", color: "#991b1b", lineHeight: 1.5 }}>
-                The PDF will spill onto a second page. Try removing bullets, shortening descriptions, or trimming skills to fit.
+          {/* Overflow warning banner */}
+          {isOverOnePage && (
+            <div className="overflow-banner">
+              <span style={{ fontSize: "18px", lineHeight: 1.2 }}>⚠️</span>
+              <div>
+                <div className="overflow-banner-title">Resume exceeds one page</div>
+                <div className="overflow-banner-text">
+                  The PDF will spill onto a second page. Try removing bullets, shortening descriptions, or trimming skills to fit.
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        <button
-          onClick={downloadPDF}
-          style={{
-            marginTop: "16px", width: "100%", padding: "14px", border: "none",
-            borderRadius: "12px",
-            background: isOverOnePage ? "#6b7280" : "#111827",
-            color: "#fff",
-            fontWeight: 600, fontSize: "15px", cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          title={isOverOnePage ? "Resume exceeds one page — PDF may be clipped" : ""}
-        >
-          {isOverOnePage ? "Download PDF (over 1 page)" : "Download PDF"}
-        </button>
+          )}
+        </div>
       </div>
     </div>
   );
