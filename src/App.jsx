@@ -511,6 +511,7 @@ function App() {
               <option value="modern">Modern Two-Column</option>
               <option value="minimal">Minimal</option>
               <option value="executive">Executive Serif</option>
+              <option value="signature">Signature (My Resume)</option>
             </select>
           </div>
 

@@ -4,6 +4,7 @@ import ATSTemplate from "./templates/ATSTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 import ExecutiveTemplate from "./templates/ExecutiveTemplate";
+import SignatureTemplate from "./templates/SignatureTemplate";
 
 const TEMPLATES = {
   google: GoogleTemplate,
@@ -12,6 +13,7 @@ const TEMPLATES = {
   modern: ModernTemplate,
   minimal: MinimalTemplate,
   executive: ExecutiveTemplate,
+  signature: SignatureTemplate,
 };
 
 export default function ResumeRenderer({ layout, data }) {
