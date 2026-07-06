@@ -16,27 +16,35 @@ export default function ATSTemplate({ data }) {
         </Section>
       )}
 
-      <Section title="EDUCATION">
-        {education.map((e, i) => (
-          <EducationEntry key={i} entry={e} />
-        ))}
-      </Section>
+      {education.length > 0 && (
+        <Section title="EDUCATION">
+          {education.map((e, i) => (
+            <EducationEntry key={i} entry={e} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="EXPERIENCE">
-        {experience.map((e, i) => (
-          <Block key={i} item={e} />
-        ))}
-      </Section>
+      {experience.length > 0 && (
+        <Section title="EXPERIENCE">
+          {experience.map((e, i) => (
+            <Block key={i} item={e} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="PROJECTS">
-        {projects.map((p, i) => (
-          <Block key={i} item={p} />
-        ))}
-      </Section>
+      {projects.length > 0 && (
+        <Section title="PROJECTS">
+          {projects.map((p, i) => (
+            <Block key={i} item={p} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="SKILLS">
-        <p style={styles.skills}>{skills.join(", ")}</p>
-      </Section>
+      {skills.length > 0 && (
+        <Section title="SKILLS">
+          <p style={styles.skills}>{skills.join(", ")}</p>
+        </Section>
+      )}
     </div>
   );
 }
@@ -106,26 +114,27 @@ const styles = {
     width: "816px",
     minHeight: "1056px",
     boxSizing: "border-box",
-    paddingTop: "32px",
-    paddingBottom: "32px",
+    paddingTop: "36px",
+    paddingBottom: "36px",
     paddingLeft: "48px",
     paddingRight: "48px",
     fontFamily: "Arial, Helvetica, sans-serif",
     fontSize: "11px",
     lineHeight: "1.25",
     color: "#111",
+    backgroundColor: "#fff",
     wordBreak: "break-word",
     overflowWrap: "break-word",
   },
   header: {
     textAlign: "center",
-    marginBottom: "14px",
+    marginBottom: "16px",
   },
   name: {
     fontSize: "24px",
     fontWeight: "700",
     lineHeight: "1.05",
-    marginBottom: "4px",
+    marginBottom: "5px",
   },
   contact: {
     fontSize: "10.5px",
@@ -133,18 +142,18 @@ const styles = {
     lineHeight: "1.25",
   },
   section: {
-    marginBottom: "10px",
+    marginBottom: "12px",
   },
   title: {
     fontSize: "10px",
     fontWeight: "700",
     letterSpacing: "1.2px",
     borderBottom: "1px solid #999",
-    paddingBottom: "2px",
-    marginBottom: "6px",
+    paddingBottom: "3px",
+    marginBottom: "7px",
   },
   block: {
-    marginBottom: "8px",
+    marginBottom: "9px",
   },
   row: {
     display: "flex",
@@ -169,8 +178,8 @@ const styles = {
     paddingLeft: "18px",
   },
   li: {
-    marginBottom: "2px",
-    lineHeight: "1.3",
+    marginBottom: "2.5px",
+    lineHeight: "1.32",
     overflowWrap: "break-word",
   },
   text: {
@@ -182,7 +191,7 @@ const styles = {
   skills: {
     margin: 0,
     fontSize: "10.75px",
-    lineHeight: "1.3",
+    lineHeight: "1.35",
     overflowWrap: "break-word",
   },
   summary: {

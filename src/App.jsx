@@ -508,6 +508,9 @@ function App() {
               <option value="google">Google SWE Style</option>
               <option value="harvard">Harvard Academic</option>
               <option value="ats">ATS Clean</option>
+              <option value="modern">Modern Two-Column</option>
+              <option value="minimal">Minimal</option>
+              <option value="executive">Executive Serif</option>
             </select>
           </div>
 

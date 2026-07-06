@@ -11,32 +11,40 @@ export default function HarvardTemplate({ data }) {
       <Header basics={basics} />
 
       {summary && (
-        <Section title="SUMMARY">
+        <Section title="Summary">
           <p style={styles.summary}>{summary}</p>
         </Section>
       )}
 
-      <Section title="EDUCATION">
-        {education.map((ed, i) => (
-          <EducationEntry key={i} entry={ed} />
-        ))}
-      </Section>
+      {education.length > 0 && (
+        <Section title="Education">
+          {education.map((ed, i) => (
+            <EducationEntry key={i} entry={ed} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="EXPERIENCE">
-        {experience.map((e, i) => (
-          <Job key={i} job={e} />
-        ))}
-      </Section>
+      {experience.length > 0 && (
+        <Section title="Experience">
+          {experience.map((e, i) => (
+            <Job key={i} job={e} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="PROJECTS">
-        {projects.map((p, i) => (
-          <Job key={i} job={p} />
-        ))}
-      </Section>
+      {projects.length > 0 && (
+        <Section title="Projects">
+          {projects.map((p, i) => (
+            <Job key={i} job={p} />
+          ))}
+        </Section>
+      )}
 
-      <Section title="SKILLS">
-        <p style={styles.skills}>{skills.join(" • ")}</p>
-      </Section>
+      {skills.length > 0 && (
+        <Section title="Skills">
+          <p style={styles.skills}>{skills.join(" • ")}</p>
+        </Section>
+      )}
     </div>
   );
 }
@@ -65,9 +73,7 @@ function EducationEntry({ entry }) {
         <div style={styles.right}>{entry.date}</div>
       </div>
       {entry.degree && (
-        <ul style={styles.ul}>
-          <li>{entry.degree}</li>
-        </ul>
+        <p style={styles.degree}>{entry.degree}</p>
       )}
     </div>
   );
@@ -89,11 +95,13 @@ function Job({ job }) {
         <div style={styles.left}><b>{job.role || job.name}</b></div>
         <div style={styles.right}>{job.company || ""}</div>
       </div>
-      <ul style={styles.ul}>
-        {(job.bullets || []).map((b, i) => (
-          <li key={i}>{b}</li>
-        ))}
-      </ul>
+      {(job.bullets || []).length > 0 && (
+        <ul style={styles.ul}>
+          {(job.bullets || []).map((b, i) => (
+            <li key={i} style={styles.li}>{b}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -103,45 +111,50 @@ const styles = {
     width: "816px",
     minHeight: "1056px",
     boxSizing: "border-box",
-    paddingTop: "32px",
-    paddingBottom: "32px",
-    paddingLeft: "48px",
-    paddingRight: "48px",
+    paddingTop: "36px",
+    paddingBottom: "36px",
+    paddingLeft: "52px",
+    paddingRight: "52px",
     fontFamily: '"Times New Roman", Times, serif',
-    fontSize: "11px",
-    lineHeight: "1.25",
+    fontSize: "11.5px",
+    lineHeight: "1.28",
     color: "#111",
+    backgroundColor: "#fff",
     wordWrap: "break-word",
     overflowWrap: "break-word",
   },
   header: {
     textAlign: "center",
     marginBottom: "14px",
+    paddingBottom: "10px",
+    borderBottom: "1.5px solid #111",
   },
   name: {
-    fontSize: "24px",
+    fontSize: "25px",
     fontWeight: 700,
     lineHeight: "1.05",
-    marginBottom: "4px",
+    letterSpacing: "0.5px",
+    marginBottom: "5px",
   },
   contact: {
     fontSize: "10.5px",
-    color: "#444",
+    color: "#333",
     lineHeight: "1.25",
   },
   section: {
-    marginBottom: "10px",
+    marginBottom: "12px",
   },
   title: {
-    fontSize: "10px",
+    fontSize: "12px",
     fontWeight: 700,
-    letterSpacing: "1.2px",
-    borderBottom: "1px solid #999",
+    fontVariant: "small-caps",
+    letterSpacing: "1.5px",
+    borderBottom: "1px solid #555",
     paddingBottom: "2px",
-    marginBottom: "6px",
+    marginBottom: "7px",
   },
   job: {
-    marginBottom: "8px",
+    marginBottom: "9px",
   },
   row: {
     display: "flex",
@@ -157,23 +170,34 @@ const styles = {
   },
   right: {
     textAlign: "right",
-    color: "#444",
+    color: "#333",
+    fontStyle: "italic",
     whiteSpace: "nowrap",
     flexShrink: 0,
+  },
+  degree: {
+    margin: "2px 0 0 0",
+    fontStyle: "italic",
+    lineHeight: "1.3",
   },
   ul: {
     margin: "3px 0 0 0",
     paddingLeft: "18px",
   },
+  li: {
+    marginBottom: "2.5px",
+    lineHeight: "1.32",
+    overflowWrap: "break-word",
+  },
   skills: {
     margin: 0,
-    fontSize: "10.75px",
-    lineHeight: "1.3",
+    fontSize: "11px",
+    lineHeight: "1.35",
     overflowWrap: "break-word",
   },
   summary: {
     margin: 0,
-    fontSize: "10.75px",
+    fontSize: "11px",
     lineHeight: "1.35",
     overflowWrap: "break-word",
   },
