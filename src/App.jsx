@@ -1,11 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import ResumeRenderer from "./components/ResumeRenderer";
 import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min";
+import { keywordCoverage, formatKeywordAsSkill } from "./utils/keywords";
+import { bulletHint } from "./utils/bulletHints";
+import { resumeToPlainText } from "./utils/plainText";
+import {
+  loadSession, saveSession, clearSession,
+  loadVersions, saveVersion, deleteVersion,
+} from "./utils/storage";
 
 // ── Blank entry templates ─────────────────────────────────────────────────────
-const blankEducation = () => ({ school: "", degree: "", date: "" });
-const blankExperience = () => ({ role: "", company: "", bullets: [""] });
-const blankProject = () => ({ name: "", tech: [], bullets: [""] });
+const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const blankEducation = () => ({ _id: newId(), school: "", degree: "", date: "" });
+const blankExperience = () => ({ _id: newId(), role: "", company: "", bullets: [""] });
+const blankProject = () => ({ _id: newId(), name: "", tech: [], bullets: [""] });
 
 // ── BulletTextarea ────────────────────────────────────────────────────────────
 // Keeps its own local string so the parent App doesn't re-render on every
@@ -16,16 +24,21 @@ function BulletTextarea({ initialValue, onCommit, onRemove }) {
   // If the parent resets the whole form (new analysis), sync back down
   useEffect(() => { setValue(initialValue); }, [initialValue]);
 
+  const hint = bulletHint(value);
+
   return (
-    <div className="bullet-row">
-      <textarea
-        rows={2}
-        className="textarea"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={() => onCommit(value)}
-      />
-      <button className="btn-x" onClick={onRemove} title="Remove bullet">✕</button>
+    <div className="bullet-block">
+      <div className="bullet-row">
+        <textarea
+          rows={2}
+          className="textarea"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => onCommit(value)}
+        />
+        <button className="btn-x" onClick={onRemove} title="Remove bullet">✕</button>
+      </div>
+      {hint && <div className="bullet-hint">{hint}</div>}
     </div>
   );
 }
@@ -50,13 +63,33 @@ function BulletEditor({ bullets, onUpdate, onAdd, onRemove }) {
   );
 }
 
+// ── HideToggle ────────────────────────────────────────────────────────────────
+// Eye button on each entry card: hidden entries stay editable but are left off
+// the rendered resume — handy for squeezing onto one page without deleting.
+function HideToggle({ hidden, onToggle }) {
+  return (
+    <button
+      className={`btn-eye${hidden ? " off" : ""}`}
+      onClick={onToggle}
+      title={hidden ? "Hidden from resume — click to show" : "Shown on resume — click to hide"}
+    >
+      {hidden ? "🚫 Hidden" : "👁 Shown"}
+    </button>
+  );
+}
+
+const restoredSession = loadSession();
+
 function App() {
   const [file, setFile] = useState(null);
-  const [jobDescription, setJobDescription] = useState("");
-  const [layout, setLayout] = useState("google");
-  const [resumeData, setResumeData] = useState(null);
+  const [jobDescription, setJobDescription] = useState(restoredSession?.jobDescription ?? "");
+  const [layout, setLayout] = useState(restoredSession?.layout ?? "google");
+  const [resumeData, setResumeData] = useState(restoredSession?.resumeData ?? null);
+  const [summary, setSummary] = useState(restoredSession?.summary ?? "");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isOverOnePage, setIsOverOnePage] = useState(false);
+  const [copied, setCopied] = useState(false);
   const resumeRef = useRef(null);
 
   // Watch the resume div height — flag if it exceeds one letter page (1056px at 96dpi)
@@ -71,19 +104,25 @@ function App() {
   }, []);
 
   // Skill chip editor
-  const [userStrengths, setUserStrengths] = useState([]);
-  const [userMissing, setUserMissing] = useState([]);
+  const [userStrengths, setUserStrengths] = useState(restoredSession?.userStrengths ?? []);
+  const [userMissing, setUserMissing] = useState(restoredSession?.userMissing ?? []);
   const [newSkill, setNewSkill] = useState("");
 
   // Override state — arrays shadow the AI arrays index-for-index
-  const [basicsOverrides, setBasicsOverrides] = useState({});
-  const [educationOverrides, setEducationOverrides] = useState([]);
-  const [experienceOverrides, setExperienceOverrides] = useState([]);
-  const [projectOverrides, setProjectOverrides] = useState([]);
+  const [basicsOverrides, setBasicsOverrides] = useState(restoredSession?.basicsOverrides ?? {});
+  const [educationOverrides, setEducationOverrides] = useState(restoredSession?.educationOverrides ?? []);
+  const [experienceOverrides, setExperienceOverrides] = useState(restoredSession?.experienceOverrides ?? []);
+  const [projectOverrides, setProjectOverrides] = useState(restoredSession?.projectOverrides ?? []);
   // Extra entries added by the user (not from AI)
-  const [extraEducation, setExtraEducation] = useState([]);
-  const [extraExperience, setExtraExperience] = useState([]);
-  const [extraProjects, setExtraProjects] = useState([]);
+  const [extraEducation, setExtraEducation] = useState(restoredSession?.extraEducation ?? []);
+  const [extraExperience, setExtraExperience] = useState(restoredSession?.extraExperience ?? []);
+  const [extraProjects, setExtraProjects] = useState(restoredSession?.extraProjects ?? []);
+  // Entries hidden from the rendered resume (keys: "edu-ai-0" or an extra's _id)
+  const [hiddenEntries, setHiddenEntries] = useState(restoredSession?.hiddenEntries ?? []);
+
+  // Saved tailored versions (one per job application)
+  const [versions, setVersions] = useState(loadVersions);
+  const [versionName, setVersionName] = useState("");
 
   // ── Raw AI data ─────────────────────────────────────────────────────────────
   const aiBasics = resumeData?.basics || {
@@ -103,8 +142,8 @@ function App() {
   };
 
   const mergedEducation = [
-    ...aiEducation.map((e, i) => ({ ...e, ...(educationOverrides[i] || {}) })),
-    ...extraEducation,
+    ...aiEducation.map((e, i) => ({ ...e, ...(educationOverrides[i] || {}), _key: `edu-ai-${i}` })),
+    ...extraEducation.map((e) => ({ ...e, _key: e._id })),
   ];
 
   const mergedExperience = [
@@ -112,8 +151,9 @@ function App() {
       ...e,
       ...(experienceOverrides[i] || {}),
       bullets: experienceOverrides[i]?.bullets ?? e.bullets,
+      _key: `exp-ai-${i}`,
     })),
-    ...extraExperience,
+    ...extraExperience.map((e) => ({ ...e, _key: e._id })),
   ];
 
   const mergedProjects = [
@@ -121,9 +161,21 @@ function App() {
       ...p,
       ...(projectOverrides[i] || {}),
       bullets: projectOverrides[i]?.bullets ?? p.bullets,
+      _key: `proj-ai-${i}`,
     })),
-    ...extraProjects,
+    ...extraProjects.map((p) => ({ ...p, _key: p._id })),
   ];
+
+  const isHidden = (key) => hiddenEntries.includes(key);
+  const toggleHidden = (key) =>
+    setHiddenEntries((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
+  // What actually appears on the resume (hidden entries filtered out)
+  const visibleEducation = mergedEducation.filter((e) => !isHidden(e._key));
+  const visibleExperience = mergedExperience.filter((e) => !isHidden(e._key));
+  const visibleProjects = mergedProjects.filter((p) => !isHidden(p._key));
 
   const strengths = Array.from(
     new Set([...aiSkills, ...userStrengths])
@@ -138,6 +190,86 @@ function App() {
     return total ? Math.round((strengths.length / total) * 100) : 0;
   })();
 
+  const renderedData = {
+    basics: mergedBasics,
+    summary,
+    education: visibleEducation,
+    experience: visibleExperience,
+    projects: visibleProjects,
+    skills: strengths,
+  };
+
+  // ── Keyword coverage (live ATS check against the job description) ──────────
+  const coverage = useMemo(() => {
+    if (!jobDescription.trim() || !resumeData) return null;
+    return keywordCoverage(jobDescription, renderedData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobDescription, resumeData, summary, basicsOverrides, educationOverrides,
+      experienceOverrides, projectOverrides, extraEducation, extraExperience,
+      extraProjects, userStrengths, userMissing, hiddenEntries]);
+
+  // ── Session autosave (debounced) ────────────────────────────────────────────
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveSession({
+        jobDescription, layout, resumeData, summary,
+        userStrengths, userMissing,
+        basicsOverrides, educationOverrides, experienceOverrides, projectOverrides,
+        extraEducation, extraExperience, extraProjects, hiddenEntries,
+      });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [jobDescription, layout, resumeData, summary, userStrengths, userMissing,
+      basicsOverrides, educationOverrides, experienceOverrides, projectOverrides,
+      extraEducation, extraExperience, extraProjects, hiddenEntries]);
+
+  const applySnapshot = (s) => {
+    setJobDescription(s.jobDescription ?? "");
+    setLayout(s.layout ?? "google");
+    setResumeData(s.resumeData ?? null);
+    setSummary(s.summary ?? "");
+    setUserStrengths(s.userStrengths ?? []);
+    setUserMissing(s.userMissing ?? []);
+    setBasicsOverrides(s.basicsOverrides ?? {});
+    setEducationOverrides(s.educationOverrides ?? []);
+    setExperienceOverrides(s.experienceOverrides ?? []);
+    setProjectOverrides(s.projectOverrides ?? []);
+    setExtraEducation(s.extraEducation ?? []);
+    setExtraExperience(s.extraExperience ?? []);
+    setExtraProjects(s.extraProjects ?? []);
+    setHiddenEntries(s.hiddenEntries ?? []);
+  };
+
+  const resetAll = () => {
+    if (!window.confirm("Clear the current resume, edits, and job description? Saved versions are kept.")) return;
+    clearSession();
+    applySnapshot({});
+    setFile(null);
+    setError("");
+    setNewSkill("");
+  };
+
+  // ── Saved versions ──────────────────────────────────────────────────────────
+  const handleSaveVersion = () => {
+    const snapshot = {
+      jobDescription, layout, resumeData, summary,
+      userStrengths, userMissing,
+      basicsOverrides, educationOverrides, experienceOverrides, projectOverrides,
+      extraEducation, extraExperience, extraProjects, hiddenEntries,
+    };
+    const saved = saveVersion(versionName || `Version ${versions.length + 1}`, snapshot);
+    if (saved) {
+      setVersions((prev) => [saved, ...prev]);
+      setVersionName("");
+    } else {
+      setError("Couldn't save this version — browser storage may be full.");
+    }
+  };
+
+  const handleLoadVersion = (v) => applySnapshot(v.snapshot);
+
+  const handleDeleteVersion = (id) => setVersions(deleteVersion(id));
+
   // ── API ─────────────────────────────────────────────────────────────────────
   const analyzeResume = async () => {
     if (!file || !jobDescription) return;
@@ -145,22 +277,35 @@ function App() {
     formData.append("resume", file);
     formData.append("jobDescription", jobDescription);
     setLoading(true);
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/analyze-resume`, {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    setResumeData(data);
-    setUserStrengths([]);
-    setUserMissing([]);
-    setBasicsOverrides({});
-    setEducationOverrides([]);
-    setExperienceOverrides([]);
-    setProjectOverrides([]);
-    setExtraEducation([]);
-    setExtraExperience([]);
-    setExtraProjects([]);
-    setLoading(false);
+    setError("");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/analyze-resume`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`The analysis server returned an error (${res.status}). Try again in a moment.`);
+      const data = await res.json();
+      setResumeData(data);
+      setSummary("");
+      setUserStrengths([]);
+      setUserMissing([]);
+      setBasicsOverrides({});
+      setEducationOverrides([]);
+      setExperienceOverrides([]);
+      setProjectOverrides([]);
+      setExtraEducation([]);
+      setExtraExperience([]);
+      setExtraProjects([]);
+      setHiddenEntries([]);
+    } catch (err) {
+      setError(
+        err instanceof TypeError
+          ? "Could not reach the analysis server. Check your connection (or that the backend is running) and try again."
+          : err.message
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Override helpers: AI-sourced entries ────────────────────────────────────
@@ -285,13 +430,18 @@ function App() {
     }
   };
 
-  // ── PDF download ────────────────────────────────────────────────────────────
+  // ── Export ──────────────────────────────────────────────────────────────────
+  const pdfFilename = (() => {
+    const name = (mergedBasics.name || "").trim().replace(/[^\w]+/g, "_").replace(/^_+|_+$/g, "");
+    return name ? `${name}_Resume.pdf` : "resume.pdf";
+  })();
+
   const downloadPDF = () => {
     const element = document.getElementById("resume");
     html2pdf()
       .set({
         margin: 0,
-        filename: "resume.pdf",
+        filename: pdfFilename,
         html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 816 },
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
         pagebreak: { mode: ["css", "legacy"] },
@@ -308,6 +458,16 @@ function App() {
       .save();
   };
 
+  const copyAsText = async () => {
+    try {
+      await navigator.clipboard.writeText(resumeToPlainText(renderedData));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Couldn't copy to clipboard — your browser may be blocking clipboard access.");
+    }
+  };
+
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="app">
@@ -319,6 +479,11 @@ function App() {
             <div className="brand-mark">RT</div>
             <h1 className="brand-name">Resume<em>Tailor</em></h1>
           </div>
+          {(resumeData || jobDescription) && (
+            <button className="btn-remove" onClick={resetAll} title="Clear resume, edits, and job description">
+              Reset
+            </button>
+          )}
         </div>
         <div className="panel-body">
           <div className="form-row">
@@ -366,6 +531,14 @@ function App() {
             {loading ? "Analyzing…" : "Analyze Resume"}
           </button>
 
+          {error && (
+            <div className="error-banner">
+              <span>⚠️</span>
+              <div>{error}</div>
+              <button className="btn-x" onClick={() => setError("")} title="Dismiss">✕</button>
+            </div>
+          )}
+
           {resumeData && (
             <div className="score-card">
               <div className="score-top">
@@ -380,6 +553,76 @@ function App() {
                 <span>{missingSkills.length} missing</span>
               </div>
             </div>
+          )}
+
+          {/* KEYWORD COVERAGE */}
+          {coverage && coverage.items.length > 0 && (
+            <div className="coverage-card">
+              <div className="coverage-head">
+                <span className="coverage-title">Keyword coverage</span>
+                <span className="coverage-percent">{coverage.percent}%</span>
+              </div>
+              <div className="coverage-hint">
+                Key terms from the job posting. Green ones appear in your resume; click an amber one to add it as a skill.
+              </div>
+              <div className="chip-row">
+                {coverage.items.map(({ keyword, covered }) =>
+                  covered ? (
+                    <span key={keyword} className="chip chip-good chip-sm">✓ {keyword}</span>
+                  ) : (
+                    <span
+                      key={keyword}
+                      className="chip chip-warn chip-sm"
+                      onClick={() => addStrength(formatKeywordAsSkill(keyword))}
+                      title="Click to add to your skills"
+                    >
+                      + {keyword}
+                    </span>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* SAVED VERSIONS */}
+          <div className="section-label">Saved versions</div>
+          <div className="skill-add-row">
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g. Google SWE Intern"
+              value={versionName}
+              onChange={(e) => setVersionName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && resumeData) { e.preventDefault(); handleSaveVersion(); } }}
+            />
+            <button
+              className="btn btn-ghost"
+              onClick={handleSaveVersion}
+              disabled={!resumeData}
+              title={resumeData ? "Save the current tailored resume" : "Analyze a resume first"}
+            >
+              Save
+            </button>
+          </div>
+          {versions.length === 0 ? (
+            <div className="versions-empty">
+              Save a snapshot of each tailored resume so you can come back to it per application.
+            </div>
+          ) : (
+            <ul className="version-list">
+              {versions.map((v) => (
+                <li key={v.id} className="version-item">
+                  <div className="version-info">
+                    <div className="version-name">{v.name}</div>
+                    <div className="version-date">
+                      {new Date(v.savedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                    </div>
+                  </div>
+                  <button className="btn-link" onClick={() => handleLoadVersion(v)}>Load</button>
+                  <button className="btn-x" onClick={() => handleDeleteVersion(v.id)} title="Delete version">✕</button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>
@@ -423,14 +666,29 @@ function App() {
             />
           </div>
 
+          {/* SUMMARY */}
+          <div className="section-label">Professional summary</div>
+          <div className="form-row">
+            <textarea
+              rows={3}
+              className="textarea"
+              placeholder="Optional 1–3 sentence pitch tailored to this role. Leave blank to omit the section."
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+            />
+          </div>
+
           {/* EDUCATION */}
           <div className="section-label">Education</div>
           {/* AI-sourced entries */}
           {aiEducation.map((_, i) => {
             const entry = mergedEducation[i];
             return (
-              <div key={i} className="entry-card">
-                <div className="entry-title"><span>{entry.school || `School ${i + 1}`}</span></div>
+              <div key={i} className={`entry-card${isHidden(entry._key) ? " is-hidden" : ""}`}>
+                <div className="entry-title">
+                  <span>{entry.school || `School ${i + 1}`}</span>
+                  <HideToggle hidden={isHidden(entry._key)} onToggle={() => toggleHidden(entry._key)} />
+                </div>
                 <div className="field-label">School</div>
                 <input type="text" className="input" value={entry.school ?? ""} onChange={(e) => updateEducation(i, "school", e.target.value)} />
                 <div className="field-label">Degree</div>
@@ -442,10 +700,13 @@ function App() {
           })}
           {/* User-added extra entries */}
           {extraEducation.map((entry, i) => (
-            <div key={`extra-edu-${i}`} className="entry-card">
+            <div key={entry._id} className={`entry-card${isHidden(entry._id) ? " is-hidden" : ""}`}>
               <div className="entry-title">
                 <span>{entry.school || "New school"}</span>
-                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraEducation, i)}>Remove</button>
+                <span className="entry-actions">
+                  <HideToggle hidden={isHidden(entry._id)} onToggle={() => toggleHidden(entry._id)} />
+                  <button className="btn-remove" onClick={() => removeExtraEntry(setExtraEducation, i)}>Remove</button>
+                </span>
               </div>
               <div className="field-label">School</div>
               <input type="text" className="input" value={entry.school} onChange={(e) => updateExtra(setExtraEducation, i, "school", e.target.value)} />
@@ -464,9 +725,10 @@ function App() {
           {aiExperience.map((_, i) => {
             const job = mergedExperience[i];
             return (
-              <div key={i} className="entry-card">
+              <div key={i} className={`entry-card${isHidden(job._key) ? " is-hidden" : ""}`}>
                 <div className="entry-title">
                   <span>{job.role || `Job ${i + 1}`}{job.company ? ` — ${job.company}` : ""}</span>
+                  <HideToggle hidden={isHidden(job._key)} onToggle={() => toggleHidden(job._key)} />
                 </div>
                 <div className="field-label">Job title</div>
                 <input type="text" className="input" value={job.role ?? ""} onChange={(e) => updateExpField(i, "role", e.target.value)} />
@@ -482,10 +744,13 @@ function App() {
             );
           })}
           {extraExperience.map((job, i) => (
-            <div key={`extra-exp-${i}`} className="entry-card">
+            <div key={job._id} className={`entry-card${isHidden(job._id) ? " is-hidden" : ""}`}>
               <div className="entry-title">
                 <span>{job.role || "New role"}{job.company ? ` — ${job.company}` : ""}</span>
-                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraExperience, i)}>Remove</button>
+                <span className="entry-actions">
+                  <HideToggle hidden={isHidden(job._id)} onToggle={() => toggleHidden(job._id)} />
+                  <button className="btn-remove" onClick={() => removeExtraEntry(setExtraExperience, i)}>Remove</button>
+                </span>
               </div>
               <div className="field-label">Job title</div>
               <input type="text" className="input" value={job.role} onChange={(e) => updateExtra(setExtraExperience, i, "role", e.target.value)} />
@@ -508,8 +773,11 @@ function App() {
           {aiProjects.map((_, i) => {
             const proj = mergedProjects[i];
             return (
-              <div key={i} className="entry-card">
-                <div className="entry-title"><span>{proj.name || `Project ${i + 1}`}</span></div>
+              <div key={i} className={`entry-card${isHidden(proj._key) ? " is-hidden" : ""}`}>
+                <div className="entry-title">
+                  <span>{proj.name || `Project ${i + 1}`}</span>
+                  <HideToggle hidden={isHidden(proj._key)} onToggle={() => toggleHidden(proj._key)} />
+                </div>
                 <div className="field-label">Project name</div>
                 <input type="text" className="input" value={proj.name ?? ""} onChange={(e) => updateProjField(i, "name", e.target.value)} />
                 <div className="field-label">Tech stack</div>
@@ -530,10 +798,13 @@ function App() {
             );
           })}
           {extraProjects.map((proj, i) => (
-            <div key={`extra-proj-${i}`} className="entry-card">
+            <div key={proj._id} className={`entry-card${isHidden(proj._id) ? " is-hidden" : ""}`}>
               <div className="entry-title">
                 <span>{proj.name || "New project"}</span>
-                <button className="btn-remove" onClick={() => removeExtraEntry(setExtraProjects, i)}>Remove</button>
+                <span className="entry-actions">
+                  <HideToggle hidden={isHidden(proj._id)} onToggle={() => toggleHidden(proj._id)} />
+                  <button className="btn-remove" onClick={() => removeExtraEntry(setExtraProjects, i)}>Remove</button>
+                </span>
               </div>
               <div className="field-label">Project name</div>
               <input type="text" className="input" value={proj.name} onChange={(e) => updateExtra(setExtraProjects, i, "name", e.target.value)} />
@@ -605,6 +876,9 @@ function App() {
                 {isOverOnePage ? "⚠ Exceeds 1 page" : "✓ Fits 1 page"}
               </span>
             )}
+            <button className="btn btn-ghost" onClick={copyAsText} title="Copy the resume as plain text for ATS forms">
+              {copied ? "Copied ✓" : "Copy as text"}
+            </button>
             <button
               className="btn btn-dark"
               onClick={downloadPDF}
@@ -616,16 +890,7 @@ function App() {
         </div>
         <div className="panel-body preview-body">
           <div id="resume" ref={resumeRef} className="resume-sheet">
-            <ResumeRenderer
-              layout={layout}
-              data={{
-                basics: mergedBasics,
-                education: mergedEducation,
-                experience: mergedExperience,
-                projects: mergedProjects,
-                skills: strengths,
-              }}
-            />
+            <ResumeRenderer layout={layout} data={renderedData} />
           </div>
 
           {/* Overflow warning banner */}
@@ -635,7 +900,7 @@ function App() {
               <div>
                 <div className="overflow-banner-title">Resume exceeds one page</div>
                 <div className="overflow-banner-text">
-                  The PDF will spill onto a second page. Try removing bullets, shortening descriptions, or trimming skills to fit.
+                  The PDF will spill onto a second page. Try hiding an entry (👁 toggle), removing bullets, or trimming skills to fit.
                 </div>
               </div>
             </div>

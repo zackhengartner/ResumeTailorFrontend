@@ -4,10 +4,17 @@ export default function GoogleTemplate({ data }) {
   const education = data?.education || [];
   const projects = data?.projects || [];
   const skills = data?.skills || [];
+  const summary = (data?.summary || "").trim();
 
   return (
     <div style={styles.page}>
       <Header basics={basics} />
+
+      {summary && (
+        <Section title="SUMMARY">
+          <p style={styles.summary}>{summary}</p>
+        </Section>
+      )}
 
       <Section title="EDUCATION">
         {education.map((e, i) => (
@@ -147,4 +154,5 @@ const styles = {
   ul: { margin: "6px 0 0 18px", paddingLeft: "14px" },
   li: { marginBottom: "3px", lineHeight: "1.35" },
   skills: { fontSize: "12.5px" },
+  summary: { margin: 0, fontSize: "12.5px", lineHeight: "1.4" },
 };

@@ -648,6 +648,175 @@ body {
   line-height: 1.5;
 }
 
+/* ── Error banner ───────────────────────────────────────────────────────── */
+.error-banner {
+  margin-top: 14px;
+  padding: 11px 12px;
+  border-radius: var(--radius);
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: #991b1b;
+  line-height: 1.45;
+}
+
+.error-banner > div {
+  flex: 1;
+}
+
+/* ── Keyword coverage ───────────────────────────────────────────────────── */
+.coverage-card {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.coverage-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.coverage-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.coverage-percent {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.coverage-hint {
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.chip-sm {
+  padding: 3px 9px;
+  font-size: 11.5px;
+}
+
+.chip-warn {
+  background: #fffbeb;
+  color: var(--amber);
+  border-color: #fde68a;
+  cursor: pointer;
+}
+
+.chip-warn:hover {
+  background: #fef3c7;
+}
+
+/* ── Saved versions ─────────────────────────────────────────────────────── */
+.versions-empty {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  padding: 4px 2px;
+}
+
+.version-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.version-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  margin-bottom: 8px;
+}
+
+.version-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.version-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version-date {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.version-item .btn-x {
+  align-self: center;
+}
+
+/* ── Bullet hints ───────────────────────────────────────────────────────── */
+.bullet-block {
+  margin-bottom: 6px;
+}
+
+.bullet-block .bullet-row {
+  margin-bottom: 0;
+}
+
+.bullet-hint {
+  font-size: 11px;
+  color: var(--amber);
+  margin: 3px 2px 0;
+  line-height: 1.4;
+}
+
+/* ── Hide toggle ────────────────────────────────────────────────────────── */
+.entry-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-eye {
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 3px 9px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-eye.off {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text-3);
+}
+
+.entry-card.is-hidden {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
 /* ── Scrollbars ─────────────────────────────────────────────────────────── */
 .panel-body::-webkit-scrollbar {
   width: 10px;

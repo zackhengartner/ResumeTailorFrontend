@@ -1,16 +1,37 @@
-# React + Vite
+# ResumeTailor — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React (Vite) frontend for RESUMETaiLOR: upload a resume PDF, paste a job
+description, and get an AI-tailored, editable, ATS-friendly resume with live
+preview and PDF export.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **AI analysis** — sends resume + job description to the FastAPI backend and
+  renders the structured result in an editable three-panel layout
+- **Keyword coverage** — client-side scan of the job posting's key terms with
+  live covered/missing status; click a missing keyword to add it as a skill
+- **Match score** with matched/missing skill chips
+- **Full editor** — contact info, professional summary, education, experience,
+  projects, skills; add your own entries alongside the AI-extracted ones
+- **Bullet quality hints** — flags weak openers, over-long bullets, and
+  unquantified impact
+- **Show/hide entries** — toggle entries off the resume (without deleting) to
+  fit one page
+- **Session autosave** — everything persists to localStorage across refreshes,
+  with a Reset button to start over
+- **Saved versions** — snapshot a tailored resume per job application and
+  reload it any time
+- **Three templates** — Google SWE, Harvard Academic, ATS Clean
+- **Export** — one-click PDF (named after you, e.g. `Jane_Doe_Resume.pdf`) and
+  copy-as-plain-text for ATS web forms
+- **One-page fit badge** — warns when the resume spills onto a second page
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Set `VITE_API_URL` in `.env` to the backend URL (see the `backend/` directory
+of the parent repo).

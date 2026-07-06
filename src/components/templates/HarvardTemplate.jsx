@@ -4,10 +4,17 @@ export default function HarvardTemplate({ data }) {
   const projects = data?.projects || [];
   const education = data?.education || [];
   const skills = data?.skills || [];
+  const summary = (data?.summary || "").trim();
 
   return (
     <div style={styles.page}>
       <Header basics={basics} />
+
+      {summary && (
+        <Section title="SUMMARY">
+          <p style={styles.summary}>{summary}</p>
+        </Section>
+      )}
 
       <Section title="EDUCATION">
         {education.map((ed, i) => (
@@ -162,6 +169,12 @@ const styles = {
     margin: 0,
     fontSize: "10.75px",
     lineHeight: "1.3",
+    overflowWrap: "break-word",
+  },
+  summary: {
+    margin: 0,
+    fontSize: "10.75px",
+    lineHeight: "1.35",
     overflowWrap: "break-word",
   },
 };
