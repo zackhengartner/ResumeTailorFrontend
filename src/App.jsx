@@ -729,6 +729,14 @@ function App() {
 
           {/* EXPERIENCE */}
           <div className="section-label">Experience</div>
+          <div className="editor-tip">
+            <span className="editor-tip-icon">💡</span>
+            <span>
+              <b>Quantify impact where it's real</b> — numbers like %, users, or
+              time saved catch a recruiter's eye. A specific outcome beats a
+              forced statistic, so skip the number when one doesn't fit.
+            </span>
+          </div>
           {aiExperience.map((_, i) => {
             const job = mergedExperience[i];
             return (

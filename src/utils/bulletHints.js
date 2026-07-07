@@ -1,5 +1,6 @@
 // Lightweight writing lint for resume bullets. Returns at most one hint so
-// the editor stays calm — priority: weak opener > too long > no metrics.
+// the editor stays calm — priority: weak opener > too long. The generic
+// "quantify impact" advice lives in the one-time editor tip, not per bullet.
 
 const WEAK_OPENERS = [
   "responsible for",
@@ -30,9 +31,6 @@ export function bulletHint(text) {
   }
   if (trimmed.length > MAX_LENGTH) {
     return "Long bullet — aim for one to two lines";
-  }
-  if (!/\d/.test(trimmed) && trimmed.length > 40) {
-    return "Tip: add a number to quantify impact (%, users, time saved)";
   }
   return null;
 }
