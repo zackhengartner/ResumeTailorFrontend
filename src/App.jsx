@@ -12,7 +12,7 @@ import {
 // ── Blank entry templates ─────────────────────────────────────────────────────
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const blankEducation = () => ({ _id: newId(), school: "", degree: "", date: "" });
-const blankExperience = () => ({ _id: newId(), role: "", company: "", bullets: [""] });
+const blankExperience = () => ({ _id: newId(), role: "", company: "", date: "", bullets: [""] });
 const blankProject = () => ({ _id: newId(), name: "", tech: [], bullets: [""] });
 
 // ── BulletTextarea ────────────────────────────────────────────────────────────
@@ -512,6 +512,9 @@ function App() {
               <option value="minimal">Minimal</option>
               <option value="executive">Executive Serif</option>
               <option value="signature">Signature (My Resume)</option>
+              <option value="swe">SWE Classic</option>
+              <option value="classicserif">Classic Serif</option>
+              <option value="latex">LaTeX Technical</option>
             </select>
           </div>
 
@@ -738,6 +741,8 @@ function App() {
                 <input type="text" className="input" value={job.role ?? ""} onChange={(e) => updateExpField(i, "role", e.target.value)} />
                 <div className="field-label">Company</div>
                 <input type="text" className="input" value={job.company ?? ""} onChange={(e) => updateExpField(i, "company", e.target.value)} />
+                <div className="field-label">Date range</div>
+                <input type="text" className="input" value={job.date ?? ""} placeholder="e.g. May 2026 – Aug 2026" onChange={(e) => updateExpField(i, "date", e.target.value)} />
                 <BulletEditor
                   bullets={job.bullets}
                   onUpdate={(bi, val) => updateExpBullet(i, bi, val)}
@@ -760,6 +765,8 @@ function App() {
               <input type="text" className="input" value={job.role} onChange={(e) => updateExtra(setExtraExperience, i, "role", e.target.value)} />
               <div className="field-label">Company</div>
               <input type="text" className="input" value={job.company} onChange={(e) => updateExtra(setExtraExperience, i, "company", e.target.value)} />
+              <div className="field-label">Date range</div>
+              <input type="text" className="input" value={job.date ?? ""} placeholder="e.g. May 2026 – Aug 2026" onChange={(e) => updateExtra(setExtraExperience, i, "date", e.target.value)} />
               <BulletEditor
                 bullets={job.bullets}
                 onUpdate={(bi, val) => updateExtraBullet(setExtraExperience, i, bi, val)}

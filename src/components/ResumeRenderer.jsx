@@ -5,6 +5,9 @@ import ModernTemplate from "./templates/ModernTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 import ExecutiveTemplate from "./templates/ExecutiveTemplate";
 import SignatureTemplate from "./templates/SignatureTemplate";
+import SWETemplate from "./templates/SWETemplate";
+import ClassicSerifTemplate from "./templates/ClassicSerifTemplate";
+import LatexTemplate from "./templates/LatexTemplate";
 
 const TEMPLATES = {
   google: GoogleTemplate,
@@ -14,6 +17,9 @@ const TEMPLATES = {
   minimal: MinimalTemplate,
   executive: ExecutiveTemplate,
   signature: SignatureTemplate,
+  swe: SWETemplate,
+  classicserif: ClassicSerifTemplate,
+  latex: LatexTemplate,
 };
 
 export default function ResumeRenderer({ layout, data }) {

@@ -34,7 +34,14 @@ export default function SignatureTemplate({ data }) {
 
       {skills.length > 0 && (
         <Section title="Skills">
-          <SkillColumns skills={skills} />
+          <p style={styles.skills}>
+            {skills.map((s, i) => (
+              <span key={i}>
+                {i > 0 && <span style={styles.skillDot}>•</span>}
+                {s}
+              </span>
+            ))}
+          </p>
         </Section>
       )}
 
@@ -123,26 +130,6 @@ function Entry({ heading, date, sub, bullets }) {
   );
 }
 
-// The real resume groups skills under three bold category headers; the data
-// model only has a flat list, so balance it across three bulleted columns.
-function SkillColumns({ skills }) {
-  const cols = [[], [], []];
-  const per = Math.ceil(skills.length / 3);
-  skills.forEach((s, i) => cols[Math.min(Math.floor(i / per), 2)].push(s));
-
-  return (
-    <div style={styles.skillCols}>
-      {cols.filter((c) => c.length > 0).map((col, ci) => (
-        <ul key={ci} style={styles.skillUl}>
-          {col.map((s, si) => (
-            <li key={si} style={styles.li}>{s}</li>
-          ))}
-        </ul>
-      ))}
-    </div>
-  );
-}
-
 const styles = {
   page: {
     width: "816px",
@@ -150,7 +137,7 @@ const styles = {
     boxSizing: "border-box",
     padding: "40px 40px",
     fontFamily: "Arial, Helvetica, sans-serif",
-    fontSize: "10.5px",
+    fontSize: "11.5px",
     lineHeight: "1.35",
     color: "#1a1a1a",
     backgroundColor: "#fff",
@@ -162,7 +149,7 @@ const styles = {
   },
   name: {
     fontFamily: "Georgia, 'Times New Roman', serif",
-    fontSize: "30px",
+    fontSize: "32px",
     fontWeight: 400,
     lineHeight: "1.1",
     marginBottom: "8px",
@@ -172,7 +159,7 @@ const styles = {
     marginBottom: "7px",
   },
   contact: {
-    fontSize: "10.5px",
+    fontSize: "11.5px",
     color: "#1a1a1a",
   },
   dot: {
@@ -184,7 +171,7 @@ const styles = {
   },
   title: {
     fontFamily: "Georgia, 'Times New Roman', serif",
-    fontSize: "15px",
+    fontSize: "16.5px",
     fontWeight: 400,
     borderBottom: "1px solid #c9c9c9",
     paddingBottom: "3px",
@@ -224,14 +211,14 @@ const styles = {
     lineHeight: "1.35",
     overflowWrap: "break-word",
   },
-  skillCols: {
-    display: "flex",
-    gap: "24px",
-  },
-  skillUl: {
-    flex: 1,
+  skills: {
     margin: 0,
-    paddingLeft: "18px",
+    lineHeight: "1.6",
+    overflowWrap: "break-word",
+  },
+  skillDot: {
+    margin: "0 8px",
+    color: "#777",
   },
   summary: {
     margin: 0,
