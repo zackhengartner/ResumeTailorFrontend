@@ -489,7 +489,17 @@ function App() {
           <div className="form-row">
             <label className="field-label">Resume PDF</label>
             <label className={`dropzone${file ? " has-file" : ""}`}>
-              <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} />
+              {/* Clear the input's value after reading so picking the same file
+                  after a reset still fires onChange (browsers skip it otherwise) */}
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) setFile(f);
+                  e.target.value = "";
+                }}
+              />
               <div className="dropzone-icon">{file ? "📄" : "⬆️"}</div>
               <div className="dropzone-text">
                 <div className="dropzone-title">
