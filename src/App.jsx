@@ -424,10 +424,9 @@ function App() {
 
   const removeStrength = (skill) => {
     setUserStrengths((p) => p.filter((s) => s !== skill));
-    // Only push back to missing if it was originally an AI-missing skill
-    if (aiMissing.includes(skill)) {
-      setUserMissing((p) => p.includes(skill) ? p : [...p, skill]);
-    }
+    // Always mark as missing — this is what removes AI-detected skills from
+    // the strengths list, since they can't be filtered out of aiSkills.
+    setUserMissing((p) => p.includes(skill) ? p : [...p, skill]);
   };
 
   // ── Export ──────────────────────────────────────────────────────────────────
