@@ -87,10 +87,21 @@ function App() {
   const [resumeData, setResumeData] = useState(restoredSession?.resumeData ?? null);
   const [summary, setSummary] = useState(restoredSession?.summary ?? "");
   const [loading, setLoading] = useState(false);
+  const [showOcrNotice, setShowOcrNotice] = useState(false);
   const [error, setError] = useState("");
   const [isOverOnePage, setIsOverOnePage] = useState(false);
   const [copied, setCopied] = useState(false);
   const resumeRef = useRef(null);
+
+  useEffect(() => {
+    if (!loading) {
+      setShowOcrNotice(false);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setShowOcrNotice(true), 6000);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
 
   // Watch the resume div height — flag if it exceeds one letter page (1056px at 96dpi)
   useEffect(() => {
@@ -544,8 +555,25 @@ function App() {
             disabled={loading || !file || !jobDescription}
           >
             {loading && <span className="spinner" />}
-            {loading ? "Analyzing…" : "Analyze Resume"}
+            {loading
+              ? showOcrNotice
+                ? "Reading scanned PDF…"
+                : "Analyzing…"
+              : "Analyze Resume"}
           </button>
+
+          {loading && showOcrNotice && (
+            <div className="ocr-notice" role="status" aria-live="polite">
+              <span className="ocr-notice-icon">📄</span>
+              <div>
+                <strong>This PDF appears to need OCR.</strong>
+                <span>
+                  Scanned resumes can take about a minute to read. Keep this tab
+                  open—we&apos;re still working.
+                </span>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="error-banner">
