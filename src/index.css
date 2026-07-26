@@ -111,12 +111,19 @@ body {
   flex-shrink: 0;
 }
 
-/* Quiet, matter-of-fact data disclosure — present but not alarming */
-.data-note {
-  margin: 0 0 10px;
+/* Quiet disclosure link — discoverable without reading as a warning */
+.foot-link {
+  display: block;
+  margin-top: 8px;
+  text-align: center;
   font-size: 11px;
-  line-height: 1.5;
   color: var(--text-3);
+  text-decoration: none;
+}
+
+.foot-link:hover {
+  color: var(--text-2);
+  text-decoration: underline;
 }
 
 /* ── Buy me a coffee ────────────────────────────────────────────────────── */

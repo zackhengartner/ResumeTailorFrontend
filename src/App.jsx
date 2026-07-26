@@ -675,10 +675,6 @@ function App() {
           )}
         </div>
         <div className="panel-foot">
-          <p className="data-note">
-            Your resume is sent to Groq&apos;s AI to tailor it, and isn&apos;t stored
-            on our servers. Saved versions stay in your browser.
-          </p>
           <a
             className="bmc-link"
             href={BMC_URL}
@@ -688,6 +684,15 @@ function App() {
           >
             <span className="bmc-icon">☕</span>
             <span>Buy me a coffee</span>
+          </a>
+          {/* New tab so an in-progress edit is never interrupted */}
+          <a
+            className="foot-link"
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            How your resume is handled
           </a>
         </div>
       </div>
