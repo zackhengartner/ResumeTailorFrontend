@@ -9,6 +9,11 @@ import {
   loadVersions, saveVersion, deleteVersion,
 } from "./utils/storage";
 
+// ── Support link ──────────────────────────────────────────────────────────────
+// Your Buy Me a Coffee handle — the part after buymeacoffee.com/ in your page URL.
+const BMC_USERNAME = "zackhengartner";
+const BMC_URL = `https://buymeacoffee.com/${BMC_USERNAME}`;
+
 // ── Blank entry templates ─────────────────────────────────────────────────────
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const blankEducation = () => ({ _id: newId(), school: "", degree: "", date: "" });
@@ -668,6 +673,22 @@ function App() {
               ))}
             </ul>
           )}
+        </div>
+        <div className="panel-foot">
+          <p className="data-note">
+            Your resume is sent to Groq&apos;s AI to tailor it, and isn&apos;t stored
+            on our servers. Saved versions stay in your browser.
+          </p>
+          <a
+            className="bmc-link"
+            href={BMC_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Support ResumeTailor"
+          >
+            <span className="bmc-icon">☕</span>
+            <span>Buy me a coffee</span>
+          </a>
         </div>
       </div>
 
