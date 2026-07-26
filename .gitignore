@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Claude Code worktrees are nested git repos — committing them creates a
+# broken submodule reference that fails CI clones. Skills stay tracked.
+.claude/worktrees/
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
