@@ -83,11 +83,17 @@ function HideToggle({ hidden, onToggle }) {
   );
 }
 
+const JOB_DESCRIPTION_MAX_CHARS = 8000;
+const limitJobDescription = (value = "") =>
+  value.slice(0, JOB_DESCRIPTION_MAX_CHARS);
+
 const restoredSession = loadSession();
 
 function App() {
   const [file, setFile] = useState(null);
-  const [jobDescription, setJobDescription] = useState(restoredSession?.jobDescription ?? "");
+  const [jobDescription, setJobDescription] = useState(
+    limitJobDescription(restoredSession?.jobDescription)
+  );
   const [layout, setLayout] = useState(restoredSession?.layout ?? "google");
   const [resumeData, setResumeData] = useState(restoredSession?.resumeData ?? null);
   const [summary, setSummary] = useState(restoredSession?.summary ?? "");
@@ -240,7 +246,7 @@ function App() {
       extraEducation, extraExperience, extraProjects, hiddenEntries]);
 
   const applySnapshot = (s) => {
-    setJobDescription(s.jobDescription ?? "");
+    setJobDescription(limitJobDescription(s.jobDescription));
     setLayout(s.layout ?? "google");
     setResumeData(s.resumeData ?? null);
     setSummary(s.summary ?? "");
@@ -550,8 +556,21 @@ function App() {
               className="textarea"
               placeholder="Paste the job posting here…"
               value={jobDescription}
+              maxLength={JOB_DESCRIPTION_MAX_CHARS}
+              aria-describedby="job-description-count"
               onChange={(e) => setJobDescription(e.target.value)}
             />
+            <div
+              id="job-description-count"
+              className={`character-count${
+                jobDescription.length >= JOB_DESCRIPTION_MAX_CHARS * 0.9
+                  ? " near-limit"
+                  : ""
+              }`}
+            >
+              {jobDescription.length.toLocaleString()} /{" "}
+              {JOB_DESCRIPTION_MAX_CHARS.toLocaleString()} characters
+            </div>
           </div>
 
           <button

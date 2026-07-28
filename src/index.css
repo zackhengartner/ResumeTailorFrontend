@@ -247,6 +247,18 @@ body {
   margin-bottom: 16px;
 }
 
+.character-count {
+  margin-top: 5px;
+  color: var(--text-3);
+  font-size: 11px;
+  text-align: right;
+}
+
+.character-count.near-limit {
+  color: var(--red);
+  font-weight: 600;
+}
+
 /* ── File dropzone ──────────────────────────────────────────────────────── */
 .dropzone {
   display: flex;
