@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import ResumeRenderer from "./components/ResumeRenderer";
-import html2pdf from "html2pdf.js/dist/html2pdf.bundle.min";
 import { keywordCoverage, formatKeywordAsSkill } from "./utils/keywords";
 import { bulletHint } from "./utils/bulletHints";
 import { resumeToPlainText } from "./utils/plainText";
@@ -458,25 +457,20 @@ function App() {
   })();
 
   const downloadPDF = () => {
-    const element = document.getElementById("resume");
-    html2pdf()
-      .set({
-        margin: 0,
-        filename: pdfFilename,
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 816 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"] },
-      })
-      .from(element)
-      .toPdf()
-      .get("pdf")
-      .then((pdf) => {
-        for (let i = pdf.internal.getNumberOfPages(); i >= 2; i--) {
-          const page = pdf.internal.pages[i];
-          if (!page || page.join("").trim() === "") pdf.deletePage(i);
-        }
-      })
-      .save();
+    const previousTitle = document.title;
+    const filenameWithoutExtension = pdfFilename.replace(/\.pdf$/i, "");
+
+    document.title = filenameWithoutExtension;
+    document.body.classList.add("printing-resume");
+
+    const restorePage = () => {
+      document.title = previousTitle;
+      document.body.classList.remove("printing-resume");
+      window.removeEventListener("afterprint", restorePage);
+    };
+
+    window.addEventListener("afterprint", restorePage);
+    window.print();
   };
 
   const copyAsText = async () => {
@@ -983,9 +977,13 @@ function App() {
             <button
               className="btn btn-dark"
               onClick={downloadPDF}
-              title={isOverOnePage ? "Resume exceeds one page — PDF may be clipped" : ""}
+              title={
+                isOverOnePage
+                  ? "Resume exceeds one page — the saved PDF may use multiple pages"
+                  : "Choose Save as PDF in the print dialog; text remains selectable"
+              }
             >
-              Download PDF
+              Save as PDF
             </button>
           </div>
         </div>

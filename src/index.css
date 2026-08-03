@@ -958,3 +958,43 @@ body {
 .panel-body::-webkit-scrollbar-thumb:hover {
   background: #b3b9c7;
 }
+
+/* ── Text-preserving PDF export ─────────────────────────────────────────── */
+@media print {
+  @page {
+    size: letter;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  body.printing-resume * {
+    visibility: hidden;
+  }
+
+  body.printing-resume #resume,
+  body.printing-resume #resume * {
+    visibility: visible;
+  }
+
+  body.printing-resume #resume {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
